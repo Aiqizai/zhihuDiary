@@ -10,6 +10,7 @@ vue-cli + vue-router + ES6 + axios + sass + vant UI框架
 + 查看日报详情
 + 查看对应日报的评论，包括长评和短评
 + 搜索日报
++ 收藏和取消收藏日报
 
 ## 项目运行
 
