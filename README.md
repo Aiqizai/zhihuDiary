@@ -15,7 +15,7 @@ vue-cli + vue-router + ES6 + axios + sass + vant UI框架
 
 ```   
 git clone https://github.com/Aiqizai/zhihuDiary.git
-cd ReadMore
+cd zhihuDiary
 npm install
 
 npm run serve
