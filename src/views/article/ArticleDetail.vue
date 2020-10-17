@@ -6,7 +6,8 @@
       <i class="icon-arrow_lift back-icon" @click="Back"></i>
       <span class="line"></span>
       <span class="icon-wrapper">
-        <i class="icon-message comment-icon" @click="GotoCommentView"></i>
+        <!-- <i class="icon-message comment-icon" @click="GotoCommentView"></i> -->
+        <van-icon name="comment-o comment-icon" @click="GotoCommentView" :badge="commentLenght" color="#1a1a1a"/>
         <i
           class="icon-star star-icon"
           :class="{ active: isActive === true }"
@@ -63,19 +64,30 @@ export default {
       sum: "",
       iscollect: false,
       bool: true,
+      shortComment: [],
+      longComment: [],
+      commentLenght: ''
     };
   },
+  // mounted() {
+  //   let imgWrapper = document.getElementsByClassName("img-place-holder")[0];
+  //   console.log(imgWrapper)
+
+  //   imgWrapper.setAttribute("backgroundImage","url('https://pic2.zhimg.com/v2-0ca033f4b6794fa0aac18701b1a54afb.jpg?source=8673f162')")
+  //   imgWrapper.setAttribute("backgroundRepeat","no-repeat")
+  //   imgWrapper.setAttribute("backgroundSize","cover")
+  // },
   computed: {
     getCurrentArticleId() {
       // 记录当前文章的id
       return this.idArr.concat(this.id);
-    },
+    }
   },
   created() {
-    console.log(this.$route.params.id, 1234567);
     this.id = this.$route.params.id;
 
     this.getDateFromServer();
+    this.getCommentLengthFromServer();
 
     // 判断是否已收藏，已收藏高亮
     if (this.id === JSON.parse(localStorage.getItem("collectId"))) {
@@ -84,8 +96,6 @@ export default {
   },
   methods: {
     getDateFromServer() {
-      console.log(this.$route);
-
       this.$toast.loading({
         message: "加载中...",
         forbidClick: true,
@@ -112,6 +122,26 @@ export default {
           // alert("网络出现异常!");
         });
     },
+    getCommentLengthFromServer() {
+      this.axios
+        .all([
+          this.axios.get(
+            `/api/short_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+          ),
+          this.axios.get(
+            `/api/long_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+          ),
+        ])
+        .then(
+          this.axios.spread((shortComment, longComment) => {
+            // 上面两个请求都完成后，才执行这个回调方法
+            this.shortComment = shortComment.data.data.comments;
+            this.longComment = longComment.data.data.comments;
+            this.commentLenght = this.shortComment.length + this.longComment.length;
+          })
+        )
+        .catch((error) => {console.log(error)});
+    },
     Back() {
       // 如果是在文章详情页就返回首页
       if (this.$route.name === "Detail") {
@@ -119,7 +149,6 @@ export default {
       }
     },
     GotoCommentView() {
-      console.log(this.$route);
       this.$router.push({ name: "Comment", params: this.id });
     },
     GotoLogin() {
@@ -127,7 +156,6 @@ export default {
         name: "Login",
         params: { isBackDetail: 1, id: this.id },
       });
-      console.log("跳转到登录路由", this.$route);
     },
     // GetSum() {
     //   // // 产生0-1的随机数

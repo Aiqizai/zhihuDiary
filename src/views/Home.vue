@@ -2,29 +2,27 @@
   <div class="wrapper">
     <!-- 顶部组件 -->
     <NavBar />
-    <!-- <van-pull-refresh v-model="isLoading" @refresh="onRefresh"> -->
-    <!-- 轮播图组件 -->
-    <Carousel :banners="banners" />
-    <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="getRefreshDate"
-    >
-      <van-cell>
-        <!-- 文章组件 -->
-        <ArticleItem :article="article" />
-        <!-- 下拉刷新产生的数据 -->
-        <RefreshArticle
-          v-show="showRefresh"
-          :refreshDate="refreshDate"
-          :resDate="resDate"
-          :display="display"
-        />
-      </van-cell>
-    </van-list>
-
-    <!-- </van-pull-refresh> -->
+    <van-pull-refresh v-model="isLoading" @refresh="onRefresh">
+      <!-- 轮播图组件 -->
+      <Carousel :banners="banners" />
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+      >
+        <van-cell>
+          <!-- 文章组件 -->
+          <ArticleItem :article="article" />
+          <!-- 下拉刷新产生的数据 -->
+          <RefreshArticle
+            v-show="showRefresh"
+            :refreshDate="refreshDate"
+            :display="display"
+          />
+        </van-cell>
+      </van-list>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -47,12 +45,12 @@ export default {
       refreshDate: [],
       loading: false,
       finished: false,
-      display: ""
+      display: "",
     };
   },
   created() {
-    this.currentData = this.getMonth;
-    this.resDate = Number(this.currentData) - 1;
+    // this.currentData = this.getMonth;
+    // this.resDate = Number(this.currentData) - 1;
     this.getDataFromServe();
   },
   computed: {
@@ -68,7 +66,7 @@ export default {
         nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
 
       return year.toString() + month.toString() + day.toString();
-    },
+    }
   },
   methods: {
     getDataFromServe() {
@@ -84,11 +82,11 @@ export default {
           // 关闭加载轻提示
           this.$toast.clear();
 
-          console.log(res);
+          // console.log(res);
           if (res.status === 200) {
             this.banners = res.data.data.top_stories;
             this.article = res.data.data.stories;
-            console.log(this.article);
+            // console.log(this.article);
           }
           // this.initalBScoller()
         })
@@ -107,33 +105,31 @@ export default {
     },
     onRefresh() {
       setTimeout(() => {
-        this.$toast("刷新成功");
         this.isLoading = false;
         this.showRefresh = true;
-        console.log(this.currentData);
-        console.log(this.resDate, "最终");
-        console.log(Number(this.currentData) - 1);
-        this.getRefreshDate();
+        this.getDataFromServe();
+        this.$toast.success({ message: "刷新成功" });
       }, 1000);
     },
-    getRefreshDate() {
+    onLoad() {
       this.axios(
         `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
-          Number(this.currentData) - 1
+          Number(this.getMonth) - 1
         }`
-      ).then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          this.refreshDate = res.data.data.stories;
-          this.display = "block"
-          console.log(this.refreshDate, "刷新请求的数据");
-          // 加载状态结束
-          this.loading = false;
-        // 数据全部加载完成
-          this.finished = true;
-        }
-      })
-      .catch(() => {
+      )
+        .then((res) => {
+          // console.log(res);
+          if (res.status === 200) {
+            this.refreshDate = res.data.data.stories;
+            this.display = "block";
+            console.log(this.refreshDate, "刷新请求的数据");
+            // 加载状态结束
+            this.loading = false;
+            // 数据全部加载完成
+            this.finished = true;
+          }
+        })
+        .catch(() => {
           // 数据请求失败时展示失败轻提示
           this.$toast.fail({
             message: "网络异常",
@@ -141,7 +137,12 @@ export default {
           });
           // alert("网络出现异常!");
         });
-    }
+    },
+    freshHandle() {
+      this.timer = setInterval(() => {
+        this.getRefreshDate();
+      }, 1000);
+    },
   },
   components: {
     NavBar,

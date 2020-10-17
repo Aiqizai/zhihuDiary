@@ -48,19 +48,12 @@
       >
     </van-popup>
     <!-- 回复框 -->
-    <van-popup
-      v-model="showRepInp"
-      position="bottom"
-      :style="{ height: '8%' }"
-    >
-      <van-field
-        center
-        clearable
-        label="回复内容"
-        placeholder="请输入回复内容"
-      >
+    <van-popup v-model="showRepInp" position="bottom" :style="{ height: '8%' }">
+      <van-field center clearable label="回复内容" placeholder="请输入回复内容">
         <template #button>
-          <van-button size="small" type="primary" @click="closeRepInp">发送</van-button>
+          <van-button size="small" type="primary" @click="closeRepInp"
+            >发送</van-button
+          >
         </template>
       </van-field>
     </van-popup>
@@ -142,6 +135,7 @@ export default {
       console.log(this.$route.params, "当前路由的params");
       console.log(this.id, "当前id");
       this.$router.push({ name: "Detail", params: { id: this.id } });
+      this.$emit('sendCommentLength',this.getCommentLenght)
     },
     show() {
       // document.body.style.overflow = "hidden";
@@ -188,8 +182,8 @@ export default {
       this.showReply = !this.showReply;
     },
     closeRepInp() {
-      this.showRepInp = false
-    }
+      this.showRepInp = false;
+    },
   },
   components: {
     CommentsComp,
