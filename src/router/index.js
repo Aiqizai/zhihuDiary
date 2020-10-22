@@ -35,7 +35,11 @@ const routes = [
   {
     path: '/collect',
     name: 'Collect',
-    component: () => import('../views/collection/CollectionView.vue')
+    component: () => import('../views/collection/CollectionView.vue'),
+    // meta: {
+    //   title: '收藏页',
+    //   keepAlive: true
+    // },
   },
   {
     path: '/search',

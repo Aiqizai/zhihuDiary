@@ -13,8 +13,18 @@
     <!-- 搜索框 -->
     <!-- <NavSearch/> -->
     <div class="search">
-      <van-search v-model="value" placeholder="日期(如:20200923)" />
-      <div class="search-btn" @click="GotoSearch">搜索</div>
+      <!-- <van-search v-model="value" placeholder="日期(如:20200923)" /> -->
+      <van-icon name="idcard" class="caledar-icon" @click="showCaledar" />
+      <div class="show-date" ref="myDate">{{value}}</div>
+      <van-calendar
+        v-model="show"
+        :min-date="minDate"
+        :max-date="maxDate"
+        @confirm="selectDate"
+      />
+      <van-button type="primary" class="search-btn" @click="GotoSearch"
+        >搜索</van-button
+      >
     </div>
     <div class="nav-right" @click="GotoLogin">
       <img src="../assets/images/default_header.png" alt="默认头像" />
@@ -29,12 +39,15 @@ import { Notify } from "vant";
 export default {
   data() {
     return {
-      value: "",
+      value: "日期",
+      show: false,
+      minDate: new Date(2015, 0, 1),
+      maxDate: new Date(),
     };
   },
   computed: {
+    // 获取月份
     getMonth() {
-      // 获取月份
       let nowDate = new Date();
       let month = nowDate.getMonth() + 1;
       if (month === 1) {
@@ -75,25 +88,27 @@ export default {
       }
       return month;
     },
+    // 获取日
     getDay() {
-      // 获取日
       let nowDate = new Date();
-      let day = nowDate.getDate() < 10 ? '0' + nowDate.getDate() : nowDate.getDate();
+      let day =
+        nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
       return day;
     },
   },
   methods: {
+    // 搜索操作
     GotoSearch() {
       // 判断输入框是否有值
-      if (!this.value) {
+      if (this.value === '日期') {
         // 警告通知
-        Notify({ type: "warning", message: "请输入搜索日期" });
+        Notify({ type: "warning", message: "请选择搜索日期" });
         return;
       } else {
-          // 路由跳转,把搜索的内容作为参数传递给下一个页面
-          localStorage.setItem("val", JSON.stringify(this.value));
-          this.$router.push("/search");
-          // 20200323
+        // 路由跳转,把搜索的内容作为参数传递给下一个页面
+        localStorage.setItem("val", JSON.stringify(this.value));
+        this.$router.push("/search");
+        // 20200323
       }
     },
 
@@ -107,11 +122,26 @@ export default {
         this.$router.push("/login");
       }
     },
-  },
-  components: {
-    // NavSearch
-  },
-};
+    // 显示日历
+    showCaledar() {
+      this.show = true;
+    },
+    // 在日历上选择后获取到的日期
+    selectDate(Date) {
+      let currentDate = Date;
+      // 年
+      let year = currentDate.getFullYear();
+      // 月
+      let month = currentDate.getMonth() + 1 < 10 ? "0" + (currentDate.getMonth() + 1) : currentDate.getMonth() + 1;
+      // 日
+      let day = currentDate.getDate() < 10 ? "0" + currentDate.getDate() : currentDate.getDate();
+      
+      this.value = String(year) + String(month) + String(day);
+      // 关闭日历
+      this.show = false;
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -175,23 +205,34 @@ export default {
     margin-top: 8px;
     width: 290px;
 
-    .van-search {
+    .caledar-icon {
       float: left;
-      padding: 0;
-      width: 227px;
+      left: 15px;
+      font-size: 36px;
+    }
+
+    .show-date {
+      position: relative;
+      float: left;
+      left: 32px;
+      width: 138px;
+      height: 34px;
+      line-height: 34px;
+      font-size: 16px;
+      color: #999;
+      background-color: #f2f2f2;
     }
 
     .search-btn {
       // display: inline-block;
       // padding: 10px;
-      float: left;
+      float: right;
+      right: 6px;
       width: 60px;
       height: 34px;
       font-size: 14px;
       line-height: 34px;
       text-align: center;
-      color: #444;
-      background-color: #f2f2f2;
     }
   }
 }

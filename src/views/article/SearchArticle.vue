@@ -37,12 +37,12 @@ export default {
       });
 
       this.data = Number(JSON.parse(localStorage.getItem("val")));
-      console.log(this.data, typeof this.data, "前");
+      // console.log(this.data, typeof this.data, "前");
       // 判断data的值，如果是number类型才允许请求数据
       // if(typeof this.data !== Number){
       //     return
       // }else{
-      console.log(this.data, typeof this.data, "后");
+      // console.log(this.data, typeof this.data, "后");
       // 请求数据
       this.axios(
         `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${this.data}`
@@ -51,7 +51,7 @@ export default {
 
         if (res.status === 200) {
           this.articleList = res.data.data.stories;
-          console.log(this.articleList);
+          // console.log(this.articleList);
         }
 
         if(res.status === 422) {
@@ -60,7 +60,7 @@ export default {
 
         // 判断是否有数据返回
         if (this.articleList === undefined) {
-          console.log(11111);
+          // console.log(11111);
           // 提示搜索结果为空
           this.ShowTips = true;
         }

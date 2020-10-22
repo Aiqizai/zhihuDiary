@@ -4,12 +4,31 @@
       <i class="icon-arrow_lift back-icon" @click="Back"></i>
     </p>
     <div class="user-content">
-      <div class="user-img">
-        <img src="../assets/images/default_header.png" alt="" />
+      <div class="img-box">
+        <van-image
+          class="user-img"
+          round
+          width="8rem"
+          height="8rem"
+          :src="require('../assets/images/default.jpg')"
+        />
       </div>
-      <p class="user-name">{{ getUsername }}</p>
     </div>
     <ul>
+      <li class="list-item">
+        <span>用户名:</span>
+        <span class="username">{{ getUsername }}</span>
+        <!-- <i class="icon-keyboard_arrow_right right-icon"></i> -->
+      </li>
+      <li class="list-item">
+        <van-field
+          id="a"
+          class="input-control"
+          v-model="value"
+          label="个性签名"
+          placeholder="这家伙很懒，什么也没留下..."
+        />
+      </li>
       <li class="list-item" @click="GotoCollectView">
         <span>我的收藏</span>
         <i class="icon-keyboard_arrow_right right-icon"></i>
@@ -20,22 +39,8 @@
       </li>
     </ul>
     <div class="log-out" @click="LogOut">
-      <span>退出登录</span>
+      <van-button class="log-btn" type="warning">退出登录</van-button>
     </div>
-    <!-- <p class="changeTheme" @click="changeTheme">换肤</p>
-    <div class="theme-wrapper">
-      <van-popup
-        v-model="show"
-        position="bottom"
-        round
-        :style="{ height: '30%' }"
-      >
-        <span class="theme-name dark" @click="toggleTheme('theme1')">dark</span>
-        <span class="theme-name light" @click="toggleTheme('theme2')"
-          >light</span
-        >
-      </van-popup>
-    </div> -->
   </div>
 </template>
 
@@ -45,6 +50,7 @@ export default {
     return {
       username: "",
       show: false,
+      value: "",
     };
   },
   created() {
@@ -59,8 +65,20 @@ export default {
   methods: {
     LogOut() {
       // 退出登录删除用户信息并回到首页
-      localStorage.removeItem("info");
-      this.$router.push("/");
+      this.$dialog
+        .confirm({
+          message: "是否要退出登录?",
+          theme: "round-button",
+        })
+        .then(() => {
+          // on confirm
+          localStorage.removeItem("info");
+          this.$router.push("/");
+        })
+        .catch(() => {
+          // on cancel
+          console.log("取消退出登录");
+        });
     },
     Back() {
       // 判断回到的页面
@@ -85,20 +103,11 @@ export default {
     changeTheme() {
       this.show = true;
     },
-    toggleTheme(theme) {
-      // window.document.documentElement.setAttribute(
-      //   "data-theme",
-      //   index ? "dark" : "light"
-      // );
-      window.document.documentElement.setAttribute("data-theme", theme);
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-// @import "@/style/_handle.scss";
-
 .mine-wrapper {
   height: 100vh;
 
@@ -124,24 +133,10 @@ export default {
   }
 
   .user-content {
+    margin-bottom: 20px;
     .user-img {
-      margin: 0 auto 10px;
-      width: 80px;
-      height: 80px;
-
-      img {
-        border-radius: 50%;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    .user-name {
-      margin-bottom: 20px;
-      font-size: 16px;
-      font-weight: 700;
-      text-align: center;
-      color: #212121;
+      left: 50%;
+      transform: translateX(-4rem);
     }
   }
 
@@ -153,6 +148,21 @@ export default {
     height: 50px;
     line-height: 50px;
     color: #4d4d4d;
+
+    .username {
+      display: inline-block;
+      float: right;
+      // margin-right: 20px;
+    }
+
+    .input-control {
+      padding: 10px 0 10px 0;
+      text-align: right;
+
+      /deep/ .van-field__control {
+        text-align: right !important;
+      }
+    }
 
     .right-icon {
       display: block;
@@ -171,39 +181,19 @@ export default {
     line-height: 50px;
     text-align: center;
     color: #e1525d;
+
+    .log-btn{
+      width: 100vw;
+    }
   }
 
   .changeTheme {
+    // width: 100%;
     height: 30px;
     line-height: 30px;
     text-align: center;
     font-size: 16px;
     background-color: red;
-  }
-
-  .theme-wrapper {
-    position: relative;
-
-    .theme-name {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-25px);
-      display: inline-block;
-      width: 50px;
-      height: 50px;
-      line-height: 50px;
-      text-align: center;
-      border-radius: 50%;
-      border: 1px solid #999;
-    }
-
-    .dark {
-      left: 25%;
-    }
-
-    .light {
-      left: 65%;
-    }
   }
 }
 </style>

@@ -60,7 +60,7 @@ export default {
   }
 
   .article-list-img {
-    flex: 0 0 50px;
+    flex: 0 0 50px; 
     width: 50px;
     height: 50px;
 

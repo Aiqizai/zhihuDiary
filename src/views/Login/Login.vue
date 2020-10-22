@@ -58,7 +58,7 @@ export default {
     };
   },
   created() {
-    console.log(this.$route.params);
+    // console.log(this.$route.params);
   },
   methods: {
     closeLoginCover() {
@@ -72,7 +72,12 @@ export default {
       //生成随机数验证码
       var random = String(Math.random()).slice(-3);
 
-      alert("验证码：" + time + random);
+      this.$dialog.alert({
+        message: "验证码：" + time + random,
+        theme: "round-button",
+      }).then(() => {
+        // on close
+      });
 
       this.yzm = time + random;
 
@@ -96,11 +101,11 @@ export default {
       }, 1000);
     },
     onSubmit() {
-      console.log(this.username, this.password);
+      // console.log(this.username, this.password);
 
       // 判断验证码是否相同
       if (this.yzm === this.isyzm) {
-        console.log("相同");
+        // console.log("相同");
         // 获取用户信息
         let info = {
           username: this.username,

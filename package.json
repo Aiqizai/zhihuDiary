@@ -1,7 +1,7 @@
 {
   "name": "zhihudiary",
   "version": "0.1.0",
-  "private": true, 
+  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -11,6 +11,7 @@
     "axios": "^0.20.0",
     "better-scroll": "^2.0.4",
     "core-js": "^3.6.5",
+    "html2canvas": "^1.0.0-rc.7",
     "vant": "^2.10.8",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",

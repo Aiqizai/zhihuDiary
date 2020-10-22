@@ -1,13 +1,18 @@
 <template>
-  <div class="article-detail-wrapper">
-    <div v-html="body"></div>
+  <div class="article-detail-wrapper" ref="addImage">
+    <div v-html="body" ref="capture"></div>
     <RenderCss :href="css" />
     <div class="footer" ref="getContainer">
       <i class="icon-arrow_lift back-icon" @click="Back"></i>
       <span class="line"></span>
       <span class="icon-wrapper">
         <!-- <i class="icon-message comment-icon" @click="GotoCommentView"></i> -->
-        <van-icon name="comment-o comment-icon" @click="GotoCommentView" :badge="commentLenght" color="#1a1a1a"/>
+        <van-icon
+          name="comment-o comment-icon"
+          @click="GotoCommentView"
+          :badge="commentLenght"
+          color="#1a1a1a"
+        />
         <i
           class="icon-star star-icon"
           :class="{ active: isActive === true }"
@@ -41,6 +46,7 @@
 
 <script>
 import RenderCss from "../../components/RenderCss";
+import html2canvas from "html2canvas";
 
 export default {
   data() {
@@ -56,7 +62,7 @@ export default {
           { name: "微信", icon: "wechat" },
           { name: "微博", icon: "weibo" },
           { name: "QQ", icon: "qq" },
-          { name: "复制链接", icon: "link" },
+          { name: "生成海报长图", icon: "link" },
         ],
       ],
       isActive: false, // 收藏高亮
@@ -66,35 +72,41 @@ export default {
       bool: true,
       shortComment: [],
       longComment: [],
-      commentLenght: ''
+      commentLenght: "",
+      nowArr: [], // 判断是否已收藏
+      cancleArr: [] // 取消收藏
     };
   },
-  // mounted() {
-  //   let imgWrapper = document.getElementsByClassName("img-place-holder")[0];
-  //   console.log(imgWrapper)
-
-  //   imgWrapper.setAttribute("backgroundImage","url('https://pic2.zhimg.com/v2-0ca033f4b6794fa0aac18701b1a54afb.jpg?source=8673f162')")
-  //   imgWrapper.setAttribute("backgroundRepeat","no-repeat")
-  //   imgWrapper.setAttribute("backgroundSize","cover")
-  // },
   computed: {
     getCurrentArticleId() {
       // 记录当前文章的id
       return this.idArr.concat(this.id);
-    }
+    },
   },
   created() {
+    console.log(this.$route);
     this.id = this.$route.params.id;
 
     this.getDateFromServer();
     this.getCommentLengthFromServer();
 
-    // 判断是否已收藏，已收藏高亮
-    if (this.id === JSON.parse(localStorage.getItem("collectId"))) {
-      this.isActive = true;
-    }
+    this.isCollect();
   },
   methods: {
+    isCollect() {
+      if (localStorage.getItem("collectId")) {
+        // 判断是否已收藏，已收藏高亮
+        this.nowArr = JSON.parse(localStorage.getItem("collectId"));
+        this.nowArr.map((element) => {
+          if (Number(element.id) === this.id) {
+            console.log("判断是否已收藏");
+            this.isActive = true;
+          } else {
+            console.log(111);
+          }
+        })
+      }
+    },
     getDateFromServer() {
       this.$toast.loading({
         message: "加载中...",
@@ -107,10 +119,14 @@ export default {
           // 关闭加载轻提示
           this.$toast.clear();
 
-          console.log(res);
+          // console.log(res);
           if (res.status === 200) {
             this.body = res.data.data.body;
             this.css = res.data.data.css[0];
+            let str1 = this.body.substring(0, 36);
+            let str3 = this.body.substring(108);
+            this.body = str1 + str3;
+            // console.log(this.body);
           }
         })
         .catch(() => {
@@ -137,14 +153,20 @@ export default {
             // 上面两个请求都完成后，才执行这个回调方法
             this.shortComment = shortComment.data.data.comments;
             this.longComment = longComment.data.data.comments;
-            this.commentLenght = this.shortComment.length + this.longComment.length;
+            this.commentLenght =
+              this.shortComment.length + this.longComment.length;
           })
         )
-        .catch((error) => {console.log(error)});
+        .catch((error) => {
+          console.log(error);
+        })
     },
     Back() {
-      // 如果是在文章详情页就返回首页
-      if (this.$route.name === "Detail") {
+      // 如果是从收藏页过来的就回到收藏页
+      if (this.$route.params.isCollect) {
+        this.$router.push("/collect");
+      } else {
+        // 否则回到首页
         this.$router.push("/");
       }
     },
@@ -155,16 +177,8 @@ export default {
       this.$router.push({
         name: "Login",
         params: { isBackDetail: 1, id: this.id },
-      });
+      })
     },
-    // GetSum() {
-    //   // // 产生0-1的随机数
-    //   this.sum =  Math.floor(Math.random() * 1000 + 1);
-    //   return this.sum
-    // 	// for(var i=1;i<=100;i++){ // i的作用域：for循环内部
-    // 	// 	this.sum += i;
-    //   // }
-    // },
     showPopup() {
       // 判断是否已经登录,没有登录就弹出提示框
       if (!localStorage.getItem("info")) {
@@ -173,16 +187,18 @@ export default {
       }
       if (this.bool) {
         if (localStorage.getItem("info")) {
-          // 显示收藏成功 => 在我的页面中收藏显示改文章
           // 存好当前文章的id到本地存储,在收藏页面获取Id进行相应的渲染
           this.$toast({
             message: "收藏成功！",
             icon: "like-o",
-          });
-          // 存好id
-          // this.idArr.push(this.id);
-          // console.log(this.idArr);
-          localStorage.setItem("collectId", JSON.stringify(this.id));
+          })
+          // 存储id
+          // 判断是否一存在storage字段
+          let storage = window.localStorage.getItem("collectId");
+          storage = storage ? JSON.parse(storage) : [];
+          storage.push({ id: this.id });
+          window.localStorage.setItem("collectId", JSON.stringify(storage));
+
           this.iscollect = true;
           this.isActive = true;
           this.bool = false;
@@ -195,6 +211,15 @@ export default {
           icon: "like-o",
         });
         localStorage.removeItem("collectId");
+        // this.cancleArr = JSON.parse(localStorage.getItem("collectId"));
+        // this.cancleArr.filter((element) => {
+        //   if (Number(element.id) === this.id) {
+        //     return true;
+        //   } else {
+        //     return false;
+        //   }
+        // })
+        // console.log(this.nowArr,this.cancleArr);
         // 是否收藏
         this.iscollect = false;
         // 切换收藏状态
@@ -204,8 +229,26 @@ export default {
         // }
       }
     },
+    // toast弹窗的回调事件
     onSelect(option) {
       this.$toast(option.name);
+
+      // 通过canvas生成图片
+      html2canvas(this.$refs.capture, {
+        // 防止图片素材出现跨域,会产生图片不显示问题
+        allowTaint: true,
+        useCORS: true,
+      }).then((canvas) => {
+        // this.$refs.addImage.append(canvas);//在下面添加canvas节点
+        let link = document.createElement("a");
+        // 设置属性
+        link.href = canvas.toDataURL(); //下载链接
+        link.setAttribute("download", "海报.png");
+        link.style.display = "none"; //a标签隐藏
+        document.body.appendChild(link);
+        link.click();
+      });
+      // 关闭面板
       this.showShare = false;
     },
     getContainer() {
@@ -213,20 +256,10 @@ export default {
       return this.$refs.getContainer;
     },
   },
-  // 路由守卫解决用户强制访问当前页面,当前页面只能通过路由点击跳转访问
-  // beforeRouteEnter(to, from, next) {
-  //   // console.log(to, 123);
-  //   if (to.params.id) {
-  //     next();
-  //   } else {
-  //     next("/");
-  //     // console.log("返回主页");
-  //   }
-  // },
   components: {
     RenderCss,
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -300,15 +333,6 @@ export default {
   }
 
   .login-tips {
-    // position: fixed;
-    // top: 0;
-    // right: 0;
-    // left: 0;
-    // z-index: 20;
-    // padding: 64px 36px;
-    // min-height: 100vh;
-    // color: #fff;
-    // background-color: rgba(7, 17, 27, 0.8);
     margin: 60px auto 20px !important;
     text-align: center;
     font-size: 18px;

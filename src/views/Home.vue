@@ -2,7 +2,7 @@
   <div class="wrapper">
     <!-- 顶部组件 -->
     <NavBar />
-    <van-pull-refresh v-model="isLoading" @refresh="onRefresh">
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <!-- 轮播图组件 -->
       <Carousel :banners="banners" />
       <van-list
@@ -13,7 +13,7 @@
       >
         <van-cell>
           <!-- 文章组件 -->
-          <ArticleItem :article="article" />
+          <!-- <ArticleItem :article="article" /> -->
           <!-- 下拉刷新产生的数据 -->
           <RefreshArticle
             v-show="showRefresh"
@@ -29,7 +29,7 @@
 <script>
 import NavBar from "../components/NavBar";
 import Carousel from "../components/Carousel";
-import ArticleItem from "./article/ArticleItem";
+// import ArticleItem from "./article/ArticleItem";
 import RefreshArticle from "./article/RefreshArticle";
 // import BScroll from "better-scroll";
 
@@ -37,7 +37,9 @@ export default {
   data() {
     return {
       banners: [],
-      article: [],
+      article1: [],
+      article2: [],
+      article3: [],
       isLoading: false,
       showRefresh: false,
       currentData: "",
@@ -46,12 +48,13 @@ export default {
       loading: false,
       finished: false,
       display: "",
+      refreshing: false,
     };
   },
   created() {
     // this.currentData = this.getMonth;
     // this.resDate = Number(this.currentData) - 1;
-    this.getDataFromServe();
+    // this.getDataFromServe();
   },
   computed: {
     getMonth() {
@@ -66,89 +69,75 @@ export default {
         nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
 
       return year.toString() + month.toString() + day.toString();
-    }
+    },
   },
   methods: {
-    getDataFromServe() {
-      // 开始网络请求 弹出加载轻提示
-      this.$toast.loading({
-        message: "加载中...",
-        forbidClick: true,
-        duration: 0, // 提示框不能关闭,直到网络请求成功/失败
-      });
-
-      this.axios(`/api/latest?token=XuFmemPOGDu9OuaV7wUM`)
-        .then((res) => {
-          // 关闭加载轻提示
-          this.$toast.clear();
-
-          // console.log(res);
-          if (res.status === 200) {
-            this.banners = res.data.data.top_stories;
-            this.article = res.data.data.stories;
-            // console.log(this.article);
-          }
-          // this.initalBScoller()
-        })
-        .catch(() => {
-          // 数据请求失败时展示失败轻提示
-          this.$toast.fail({
-            message: "网络异常",
-            duration: 500,
-          });
-          // alert("网络出现异常!");
-        });
-    },
     GotoArticleDetail(currentId) {
-      // this.axios('/api/news?token=XuFmemPOGDu9OuaV7wUM')
       this.$router.push({ name: "Detail", params: { id: currentId } });
     },
-    onRefresh() {
-      setTimeout(() => {
-        this.isLoading = false;
-        this.showRefresh = true;
-        this.getDataFromServe();
-        this.$toast.success({ message: "刷新成功" });
-      }, 1000);
-    },
     onLoad() {
-      this.axios(
-        `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
-          Number(this.getMonth) - 1
-        }`
-      )
-        .then((res) => {
-          // console.log(res);
-          if (res.status === 200) {
-            this.refreshDate = res.data.data.stories;
+      this.axios
+        .all([
+          this.axios.get(`/api/latest?token=XuFmemPOGDu9OuaV7wUM`),
+          this.axios.get(
+            `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
+              Number(this.getMonth) - 1
+            }`
+          ),
+          this.axios.get(
+            `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
+              Number(this.getMonth) - 2
+            }`
+          ),
+        ])
+        .then(
+          this.axios.spread((data1, data2, data3) => {
+            if (this.refreshing) {
+              this.refreshDate = [];
+              this.refreshing = false;
+            }
+            this.banners = data1.data.data.top_stories;
+            this.article1 = data1.data.data.stories;
+            this.article2 = data2.data.data.stories;
+            this.article3 = data3.data.data.stories;
+            this.article1.push(...this.article2);
+            this.article1.push(...this.article3);
+            this.refreshDate = this.article1;
             this.display = "block";
             console.log(this.refreshDate, "刷新请求的数据");
             // 加载状态结束
             this.loading = false;
-            // 数据全部加载完成
-            this.finished = true;
-          }
-        })
+            if (data1.status === 200) {
+              // 数据全部加载完成
+              this.finished = true;
+            }
+          })
+        )
         .catch(() => {
           // 数据请求失败时展示失败轻提示
           this.$toast.fail({
             message: "网络异常",
             duration: 500,
-          });
-          // alert("网络出现异常!");
-        });
+          })
+        })
     },
-    freshHandle() {
-      this.timer = setInterval(() => {
-        this.getRefreshDate();
-      }, 1000);
-    },
+    onRefresh() {
+      // 清空列表数据
+      this.finished = false;
+
+      // 重新加载数据
+      // 将 loading 设置为 true，表示处于加载状态
+      this.loading = true;
+      this.onLoad();
+
+      this.$toast.success({ message: "刷新成功" });
+    }
   },
   components: {
     NavBar,
     Carousel,
-    ArticleItem,
+    // ArticleItem,
     RefreshArticle,
-  },
-};
+  }
+}
 </script>

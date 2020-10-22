@@ -6,17 +6,25 @@
     </p>
     <div class="collect-content">
       <ul class="ul" v-if="idInfo">
-        <li class="article-list" @click="gotoDetail">
-          <div class="article-list-text">
-            <p class="article-title">{{ title }}</p>
+        <li
+          class="article-list"
+          @touchstart="start"
+          @touchmove="move"
+          @touchend="end"
+          v-for="item in dataArr"
+          :key="item.id"
+          
+        >
+          <div class="article-list-text" ref="myItem">
+            <p class="article-title">{{ item.title }}</p>
           </div>
           <div class="article-list-img">
-            <img :src="images" alt />
+            <img :src="item.images" alt />
           </div>
         </li>
       </ul>
       <!-- 没有收藏文章的提示 -->
-      <van-empty description="暂无收藏" v-show="!idInfo" />
+      <van-empty description="暂无收藏" v-if="!id" />
     </div>
   </div>
 </template>
@@ -25,43 +33,85 @@
 export default {
   data() {
     return {
-      idInfo: "",
+      idInfo: [],
       id: "", // 获取id
       data: "",
-      title: "",
-      images: "",
+      dataArr: [],
+      longClick: 0,
+      timeOutEvent: 0,
     };
   },
-  created() {
+  mounted() {
     this.getId();
   },
   methods: {
     Back() {
       this.$router.back();
     },
+    // 获取已收藏文章的id
     getId() {
       if (localStorage.getItem("collectId")) {
         this.idInfo = JSON.parse(localStorage.getItem("collectId"));
-        // console.log(this.id.id);
-        this.id = this.idInfo;
-        console.log(this.id);
-        // console.log(this.arr.id, "收藏");
-        // this.id = this.arr.id;
+        console.log(this.idInfo);
+        this.idInfo.forEach((element) => {
+          this.id = Number(element.id);
 
-        this.axios(`/api/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`).then(
-          (res) => {
-            this.data = res.data.data;
-            this.title = this.data.title;
-            this.images = this.data.images;
-          }
-        );
+          this.axios(`/api/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`).then(
+            (res) => {
+              this.data = res.data.data;
+              this.dataArr = [...this.dataArr, this.data];
+            }
+          )
+        })
       }
     },
-    gotoDetail() {
-      this.$router.push({ name: "Detail", params: { id: this.id } });
+    //1）调用js的touch的API接口分别监听touchstart,touchmove,touchend事件
+
+    // 2）使用计时器可以设定时间用于区分长按和点击
+    start() {
+      this.longClick = 0;
+      this.timeOutEvent = setTimeout(() => {
+        this.longClick = 1;
+        // 询问是否要删除
+        this.$dialog
+          .confirm({
+            message: "是否要取消收藏?",
+            theme: "round-button",
+          })
+          .then(() => {
+            // on confirm
+            console.log(this.idInfo,this.$refs.myItem[0].innerText);
+            console.log("确定取消收藏");
+          })
+          .catch(() => {
+            // on cancel
+            console.log("关闭收藏提示");
+          })
+        console.log("这是长按");
+      }, 500)
     },
-  },
-};
+    move(e) {
+      clearTimeout(this.timeOutEvent);
+      this.timeOutEvent = 0;
+      e.preventDefault();
+      console.log("这是滑动");
+    },
+    end() {
+      clearTimeout(this.timeOutEvent);
+      if (this.timeOutEvent != 0 && this.longClick == 0) {
+        // 点击
+        // 此处为点击事件----在此处添加跳转详情页
+        this.$router.push({
+          name: "Detail",
+          params: { isCollect: 1, id: this.id },
+        });
+        console.log(this.$route, "router");
+        console.log("这是点击");
+      }
+      return false;
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

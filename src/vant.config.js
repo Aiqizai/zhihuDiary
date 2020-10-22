@@ -21,7 +21,9 @@ import {
     List,
     cell,
     SwipeCell,
-    Dialog      
+    Dialog,
+    Calendar,
+    Image as VanImage       
 } from 'vant'
 
 const vants = [
@@ -47,7 +49,9 @@ const vants = [
     List,
     cell,
     SwipeCell,
-    Dialog      
+    Dialog,
+    Calendar,
+    VanImage       
 ]
 
 export default {
