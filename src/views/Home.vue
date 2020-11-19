@@ -116,24 +116,10 @@ export default {
         .catch((err) => {
           // 数据请求失败时展示失败轻提示
           this.$toast.fail({
-            message: "网络异常",
+            message: err,
             duration: 500,
           })
-          console.log(err);
-        })
-       this.axios({
-          method: 'GET',
-          url: '/latest',
-          params: {
-            token: this.token
-          }
-        }).then(result => {
-          this.$toast.clear();
-          console.log('result ==> ', result);
-
-        }).catch(err => {
-          this.$toast.clear();
-          console.log('err ==> ', err);
+          
         })
     },
     onRefresh() {
