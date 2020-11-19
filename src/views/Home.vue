@@ -78,14 +78,14 @@ export default {
     onLoad() {
       this.axios
         .all([
-          this.axios.get(`/api/latest?token=XuFmemPOGDu9OuaV7wUM`),
+          this.axios.get(`/latest?token=XuFmemPOGDu9OuaV7wUM`),
           this.axios.get(
-            `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
+            `/before?token=XuFmemPOGDu9OuaV7wUM&date=${
               Number(this.getMonth) - 1
             }`
           ),
           this.axios.get(
-            `/api/before?token=XuFmemPOGDu9OuaV7wUM&date=${
+            `/before?token=XuFmemPOGDu9OuaV7wUM&date=${
               Number(this.getMonth) - 2
             }`
           ),
@@ -104,7 +104,7 @@ export default {
             this.article1.push(...this.article3);
             this.refreshDate = this.article1;
             this.display = "block";
-            console.log(this.refreshDate, "刷新请求的数据");
+            
             // 加载状态结束
             this.loading = false;
             if (data1.status === 200) {
@@ -113,12 +113,27 @@ export default {
             }
           })
         )
-        .catch(() => {
+        .catch((err) => {
           // 数据请求失败时展示失败轻提示
           this.$toast.fail({
             message: "网络异常",
             duration: 500,
           })
+          console.log(err);
+        })
+       this.axios({
+          method: 'GET',
+          url: '/latest',
+          params: {
+            token: this.token
+          }
+        }).then(result => {
+          this.$toast.clear();
+          console.log('result ==> ', result);
+
+        }).catch(err => {
+          this.$toast.clear();
+          console.log('err ==> ', err);
         })
     },
     onRefresh() {

@@ -52,11 +52,11 @@ export default {
     getId() {
       if (localStorage.getItem("collectId")) {
         this.idInfo = JSON.parse(localStorage.getItem("collectId"));
-        console.log(this.idInfo);
+        
         this.idInfo.forEach((element) => {
           this.id = Number(element.id);
 
-          this.axios(`/api/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`).then(
+          this.axios(`/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`).then(
             (res) => {
               this.data = res.data.data;
               this.dataArr = [...this.dataArr, this.data];
@@ -80,21 +80,21 @@ export default {
           })
           .then(() => {
             // on confirm
-            console.log(this.idInfo,this.$refs.myItem[0].innerText);
-            console.log("确定取消收藏");
+            
+            
           })
           .catch(() => {
             // on cancel
-            console.log("关闭收藏提示");
+            
           })
-        console.log("这是长按");
+        
       }, 500)
     },
     move(e) {
       clearTimeout(this.timeOutEvent);
       this.timeOutEvent = 0;
       e.preventDefault();
-      console.log("这是滑动");
+      
     },
     end() {
       clearTimeout(this.timeOutEvent);
@@ -105,8 +105,8 @@ export default {
           name: "Detail",
           params: { isCollect: 1, id: this.id },
         });
-        console.log(this.$route, "router");
-        console.log("这是点击");
+        
+        
       }
       return false;
     }

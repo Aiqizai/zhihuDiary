@@ -58,7 +58,7 @@ export default {
     };
   },
   created() {
-    // console.log(this.$route.params);
+    // 
   },
   methods: {
     closeLoginCover() {
@@ -101,11 +101,11 @@ export default {
       }, 1000);
     },
     onSubmit() {
-      // console.log(this.username, this.password);
+      // 
 
       // 判断验证码是否相同
       if (this.yzm === this.isyzm) {
-        // console.log("相同");
+        // 
         // 获取用户信息
         let info = {
           username: this.username,

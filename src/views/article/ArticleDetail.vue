@@ -84,7 +84,7 @@ export default {
     },
   },
   created() {
-    console.log(this.$route);
+
     this.id = this.$route.params.id;
 
     this.getDateFromServer();
@@ -99,10 +99,10 @@ export default {
         this.nowArr = JSON.parse(localStorage.getItem("collectId"));
         this.nowArr.map((element) => {
           if (Number(element.id) === this.id) {
-            console.log("判断是否已收藏");
+
             this.isActive = true;
           } else {
-            console.log(111);
+            this.$toast('未收藏！')
           }
         })
       }
@@ -114,19 +114,19 @@ export default {
         duration: 0, // 提示框不能关闭,直到网络请求成功/失败
       });
 
-      this.axios(`/api/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`)
+      this.axios(`/news?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`)
         .then((res) => {
           // 关闭加载轻提示
           this.$toast.clear();
 
-          // console.log(res);
+          // 
           if (res.status === 200) {
             this.body = res.data.data.body;
             this.css = res.data.data.css[0];
             let str1 = this.body.substring(0, 36);
             let str3 = this.body.substring(108);
             this.body = str1 + str3;
-            // console.log(this.body);
+            // 
           }
         })
         .catch(() => {
@@ -142,10 +142,10 @@ export default {
       this.axios
         .all([
           this.axios.get(
-            `/api/short_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+            `/short_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
           ),
           this.axios.get(
-            `/api/long_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+            `/long_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
           ),
         ])
         .then(
@@ -158,7 +158,7 @@ export default {
           })
         )
         .catch((error) => {
-          console.log(error);
+            this.$toast(error);
         })
     },
     Back() {
@@ -219,7 +219,7 @@ export default {
         //     return false;
         //   }
         // })
-        // console.log(this.nowArr,this.cancleArr);
+        // 
         // 是否收藏
         this.iscollect = false;
         // 切换收藏状态

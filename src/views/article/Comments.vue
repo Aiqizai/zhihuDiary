@@ -78,7 +78,7 @@ export default {
     };
   },
   created() {
-    console.log(Number(this.$route.params.id));
+    
     this.id = Number(this.$route.params.id);
     this.getDateFromServer();
   },
@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     getDateFromServer() {
-      console.log(this.$route);
+      
       // 开始网络请求 弹出加载轻提示
       this.$toast.loading({
         message: "评论正在赶来！！！",
@@ -102,10 +102,10 @@ export default {
       this.axios
         .all([
           this.axios.get(
-            `/api/short_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+            `/short_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
           ),
           this.axios.get(
-            `/api/long_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
+            `/long_comments?token=XuFmemPOGDu9OuaV7wUM&id=${this.id}`
           ),
         ])
         .then(
@@ -117,9 +117,9 @@ export default {
             this.shortComment = shortComment.data.data.comments;
             this.longComment = longComment.data.data.comments;
 
-            console.log("short", shortComment.data.data.comments);
+            
 
-            console.log("long", this.longComment);
+            
           })
         )
         .catch(() => {
@@ -132,8 +132,8 @@ export default {
         });
     },
     Back() {
-      console.log(this.$route.params, "当前路由的params");
-      console.log(this.id, "当前id");
+      
+      
       this.$router.push({ name: "Detail", params: { id: this.id } });
       this.$emit('sendCommentLength',this.getCommentLenght)
     },
@@ -170,14 +170,14 @@ export default {
       this.showReply = !this.showReply;
     },
     reply() {
-      console.log("11asdaadsd1");
+      
 
       if (!localStorage.getItem("info")) {
         // 显示登录提示框
         this.showlog = true;
       } else {
         this.showRepInp = true;
-        console.log(111);
+        
       }
       this.showReply = !this.showReply;
     },

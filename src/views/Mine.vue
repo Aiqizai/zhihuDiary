@@ -54,7 +54,7 @@ export default {
     };
   },
   created() {
-    console.log("详情登录路由", this.$route.params);
+    
   },
   computed: {
     getUsername() {
@@ -77,7 +77,7 @@ export default {
         })
         .catch(() => {
           // on cancel
-          console.log("取消退出登录");
+          
         });
     },
     Back() {
@@ -96,7 +96,7 @@ export default {
       this.$router.push("/");
     },
     GotoCollectView() {
-      console.log(111);
+      
       // 跳转到收藏页
       this.$router.push("/collect");
     },

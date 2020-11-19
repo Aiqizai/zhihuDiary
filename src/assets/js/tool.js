@@ -14,7 +14,7 @@ export function getTemplateTimeByDate(date, template) {
         let reg = new RegExp(key)
 
         if (reg.test(template)) {
-            // console.log(RegExp.$1)
+            // 
             let time = TimeObj[key]
             // 判断当前模板时间是 两位 还是 一位的
             // 如果是两位 个位数时间需要前面加零, 1 -> 01 

@@ -203,7 +203,7 @@ export default {
   .search {
     float: left;
     margin-top: 8px;
-    width: 290px;
+    width: 259px;
 
     .caledar-icon {
       float: left;
@@ -215,7 +215,7 @@ export default {
       position: relative;
       float: left;
       left: 32px;
-      width: 138px;
+      width: 110px;
       height: 34px;
       line-height: 34px;
       font-size: 16px;
